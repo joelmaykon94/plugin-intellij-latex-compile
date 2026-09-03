@@ -21,7 +21,15 @@ dependencies {
         pluginVerifier()
         jetbrainsRuntime()
     }
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
+
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+}
+
 
 kotlin {
     jvmToolchain(21)

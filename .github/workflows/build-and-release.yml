@@ -2,13 +2,18 @@ name: Build and Release Plugin
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build & Package Plugin
+    name: Build, Test & Package Plugin
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -27,6 +32,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+
+      - name: Run Unit & Regression Tests
+        run: ./gradlew test
 
       - name: Build Plugin Distribution
         run: ./gradlew buildPlugin

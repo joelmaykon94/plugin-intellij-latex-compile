@@ -93,7 +93,7 @@ object LatexCompiler {
         return "latexmk" // fallback to PATH
     }
 
-    private fun extractErrors(logContent: String): String {
+    internal fun extractErrors(logContent: String): String {
         val lines = logContent.lines()
         val errorLines = lines.filter {
             it.startsWith("!") ||

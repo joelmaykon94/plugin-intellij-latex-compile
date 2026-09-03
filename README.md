@@ -4,6 +4,7 @@
 
 **Plugin de Alta Performance para Autoria, Compilação Reativa e Visualização PDF em Tempo Real na Plataforma IntelliJ**
 
+[![Build Status](https://github.com/joelmaykon94/plugin-intellij-latex-compile/actions/workflows/build-and-release.yml/badge.svg)](https://github.com/joelmaykon94/plugin-intellij-latex-compile/actions/workflows/build-and-release.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/joelmaykon94/plugin-intellij-latex-compile?logo=github&color=blue)](https://github.com/joelmaykon94/plugin-intellij-latex-compile/releases)
 [![IntelliJ Platform](https://img.shields.io/badge/IntelliJ%20Platform-2024.2%20--%202026.x-087CFA?logo=intellij-idea)](https://plugins.jetbrains.com/)
 [![Java](https://img.shields.io/badge/Java-21%20LTS-ED8B00?logo=openjdk)](https://openjdk.org/projects/jdk/21/)
@@ -11,7 +12,7 @@
 [![Gradle](https://img.shields.io/badge/Gradle-8.10.2-02303A?logo=gradle)](https://gradle.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-**Split Editor Nativo · Pipeline de Compilação Reativo com Mutex · Renderizador PDF.js Sequencial via JCEF · SyncTeX Bidirecional**
+**Split Editor Nativo · Pipeline de Compilação Reativo com Mutex · Renderizador PDF.js via JCEF · SyncTeX & Scroll Sync · Zoom Avançado · Download de PDF**
 
 [Visão Geral](#-por-que-o-latex-compile--preview) · [Instalação e Uso](#-instalação-e-guia-rápido) · [Arquitetura e Engenharia](#-arquitetura-do-plugin) · [Recursos Detalhados](#-engenharia-e-recursos-internos) · [Troubleshooting](#-diagnóstico-e-resolução-de-problemas) · [Stack](#-stack-tecnológica)
 
@@ -162,10 +163,52 @@ O subsistema [`LatexCompiler.kt`](src/main/kotlin/com/github/joelmaykon94/latex/
 
 ### 4. 🧭 Barra de Ferramentas e Controles de Visualização
 O preview conta com uma barra superior sticky equipada com:
-* **Status em tempo real:** Indicador visual de compilação, renderização ou mensagens de erro.
-* **⚡ Recompilar Manual:** Botão de acionamento forçado para recompilação imediata sem necessidade de alterar o texto.
-* **Controles de Zoom:** Zoom-in (`➕`), zoom-out (`➖`) e indicador numérico percentual dinâmico.
+* **Status em tempo real:** Indicador visual dinâmico do ciclo de vida da compilação, renderização de páginas ou erros de sintaxe.
+* **⚡ Recompilar Manual:** Força a recompilação imediata sem necessitar editar o buffer do documento.
+* **💾 Baixar PDF:** Posicionado estrategicamente ao lado do botão de recompilar, permite salvar/exportar o arquivo PDF compilado em qualquer diretório da máquina local com o diálogo nativo do sistema operacional.
+* **🔗 Sincronização de Rolagem (Scroll Sync):** Comutador com opção de **ativar ou desativar** (`Sync: ON` / `Sync: OFF`). Quando ativado, a rolagem no editor de código LaTeX move o PDF de forma proporcional e exata acompanhando o código.
+* **🔍 Controles Avançados de Zoom do PDF:**
+  - **Zoom In / Out:** Botões `➕` e `➖` para controle de escala de 25% até 400%.
+  - **Alternador Rápido:** Indicador percentual clicável que alterna instantaneamente entre 100% e 150%.
+  - **Ajustar à Largura (`↔️ Ajustar`):** Calcula a viewport ideal para preencher a largura exata do painel de preview.
+  - **Mouse Wheel Zoom:** Suporte a zoom suave e intuitivo via `Ctrl + Scroll` (ou `Cmd + Scroll` no macOS).
+  - **Atalhos de Teclado:** `Ctrl + +`, `Ctrl + -` e `Ctrl + 0` (redefinir para 100%).
+  - **HiDPI / Retina Crisp Rendering:** Renderização baseada em `window.devicePixelRatio` para texto e gráficos nítidos sem perda de definição.
 * **Salto Bidirecional (SyncTeX):** Duplo clique em qualquer página salta diretamente para o ponto do cursor no editor LaTeX.
+
+---
+
+## 🧪 Testes Automatizados (Unitários e de Regressão)
+
+O projeto possui uma suíte rigorosa de testes cobrindo funcionalidades críticas do pipeline, análise léxica e prevenção de regressões:
+
+### Executando os Testes
+
+```bash
+# Executa todos os testes unitários e de regressão
+./gradlew test
+
+# Executa os testes com relatório detalhado
+./gradlew test --info
+```
+
+### Escopo das Suítes de Teste
+
+* **Testes Unitários:**
+  - `LatexSimpleLexerTest`: Valida a tokenização exata de comandos LaTeX (`\documentclass`, `\begin`, `\section*`), comentários de linha (`%`), caracteres especiais escapados (`\%`, `\$`, `\\`), blocos de fórmulas matemáticas inline (`$...$`) e display (`$$...$$`), delimitadores e texto simples.
+  - `LatexCompilerTest`: Valida a extração determinística de diagnósticos do compilador `latexmk` / `pdflatex` (erros iniciados por `!`, mensagens `Fatal error`, logs vazios e fallback seguro).
+  - `LatexScrollSyncCoordinatorTest`: Valida as funções matemáticas de mapeamento de scroll da IDE para porcentagens do PDF e cálculo de pixels correspondentes.
+  - `LatexFileTypeTest`: Valida a associação de tipos de arquivo, extensões e metadados no subsistema IntelliJ.
+
+* **Bateria de Testes de Regressão (`LatexRegressionTest`):**
+  - Previne regressão onde `\%` escapado consumia o resto da linha como comentário.
+  - Previne regressão onde `\$` escapado abria indevidamente modo matemático inline.
+  - Garante que expressões matemáticas não fechadas (`$math...` ou `$$display...`) encerrem com segurança no fim do buffer sem congelar a UI em loop infinito.
+  - Assegura suporte a comandos com asterisco (`\section*`, `\subsection*`) como token atômico.
+  - Valida estabilidade com múltiplas contrabarras consecutivas (`\\\\`).
+  - Previne estouro de pilha e vazamento de memória em saídas de erro de dezenas de milhares de linhas.
+  - Garante proteção contra `NaN` e divisão por zero em dimensões nulas de viewport.
+
 
 ---
 
