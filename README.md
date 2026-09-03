@@ -1,74 +1,223 @@
-# LaTeX Compile & Preview — IntelliJ Plugin
+<div align="center">
 
-> **LaTeX brings first-class LaTeX and BibTeX authoring to IntelliJ Platform IDEs.**
+# LaTeX Compile & Preview — IntelliJ Platform Plugin
 
-![Plugin Icon](src/main/resources/META-INF/pluginIcon.svg)
+**Plugin de Alta Performance para Autoria, Compilação Reativa e Visualização PDF em Tempo Real na Plataforma IntelliJ**
 
----
+[![GitHub Release](https://img.shields.io/github/v/release/joelmaykon94/plugin-intellij-latex-compile?logo=github&color=blue)](https://github.com/joelmaykon94/plugin-intellij-latex-compile/releases)
+[![IntelliJ Platform](https://img.shields.io/badge/IntelliJ%20Platform-2024.2%20--%202026.x-087CFA?logo=intellij-idea)](https://plugins.jetbrains.com/)
+[![Java](https://img.shields.io/badge/Java-21%20LTS-ED8B00?logo=openjdk)](https://openjdk.org/projects/jdk/21/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.20-7F52FF?logo=kotlin)](https://kotlinlang.org/)
+[![Gradle](https://img.shields.io/badge/Gradle-8.10.2-02303A?logo=gradle)](https://gradle.org/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-## 🌟 Overview
+**Split Editor Nativo · Pipeline de Compilação Reativo com Mutex · Renderizador PDF.js Sequencial via JCEF · SyncTeX Bidirecional**
 
-### ✨ Write with IDE intelligence
-- **Syntax and semantic highlighting**, completion, documentation, formatting, folding, inspections, spellchecking, and Grazie prose support.
-- **Project-aware diagnostics** for undefined commands, include cycles, structural mistakes, unused declarations, duplicates, and obsolete constructs.
-- **Project-aware navigation**, rename and find usages for labels, citations, commands, environments, packages, and included files.
-- **Structure views**, breadcrumbs, live and postfix templates, source intentions, a floating formatting toolbar, Cmd+N generation, visual table insertion, an equation editor, and Beamer support.
+[Visão Geral](#-por-que-o-latex-compile--preview) · [Instalação e Uso](#-instalação-e-guia-rápido) · [Arquitetura e Engenharia](#-arquitetura-do-plugin) · [Recursos Detalhados](#-engenharia-e-recursos-internos) · [Troubleshooting](#-diagnóstico-e-resolução-de-problemas) · [Stack](#-stack-tecnológica)
 
-### 📚 Manage bibliographies
-- **Search rich citation completion** by key, author, title, or year; navigate, rename, find usages, or safely delete entries.
-- **Complete and refactor `@string` macros**, format and fold BibTeX entries, validate styles, find unused entries, and open attached PDFs.
-- **Keep chapterbib resources chapter-scoped**; index exported `.bib` files or securely synchronize cached Zotero, Better BibTeX, Mendeley, and HTTPS bibliography sources.
-
-### ⚡ Build and preview locally
-- **Compile with `latexmk`**, Tectonic, or pdfLaTeX/XeLaTeX/LuaLaTeX and navigate compiler diagnostics.
-- **Infer or explicitly select the main document** across multi-file projects.
-- **Side-by-side PDF preview** with continuous rebuilding, single-page or continuous-document display, zoom and navigation controls, and forward/reverse SyncTeX.
-
-### 🔄 Convert documents
-- **Convert LaTeX to Typst or Typst to LaTeX** with locally installed Pandoc or Morph. Conversion is available from file context menus, Refactor, and Tools, with executable auto-detection and review-before-overwrite safeguards.
+</div>
 
 ---
 
-## 🚀 What's New (Latest Release)
+## 📌 Por que o LaTeX Compile & Preview?
 
-### Added
-- Missing font families used by Babel, fontspec, and unicode-math are now highlighted directly in the editor. Verified IBM Plex fonts can be installed for the current user from the quick-fix menu, including the complete Serif, Sans, Mono, and Math families needed by a document.
+O fluxo tradicional de escrita acadêmica e técnica em LaTeX frequentemente sofre de atrito operacional: alternância constante de janelas entre o editor de código e visualizadores PDF externos (Evince, Okular, Acrobat), scripts de compilação manuais e conflitos de concorrência que corrompem arquivos auxiliares (`.aux`, `.fls`, `.synctex.gz`).
 
-### Fixed
-- Builds whose main file is nested below the JetBrains project root now resolve relative packages, inputs, bibliographies, and output paths from the main file's directory unless a project root is explicitly configured.
-- Continuous PDF previews now render approaching pages before they enter the viewport, preventing blank pages while scrolling through longer documents.
-- Environments such as `cases` inside display math now match their `\begin` and `\end` declarations correctly instead of reporting an orphan end.
-- Mathematical spacing controls, floor notation, half-open intervals, and sized square delimiters now parse without misleading internal-token errors.
-- Missing closing brackets in command options now produce a concise, LaTeX-specific error instead of a list of internal parser token names.
-- Standard LaTeX commands documented by latexref, including spacing commands and page-layout parameters, no longer receive incorrect undefined-command warnings.
-- Commands supplied by loaded packages are now discovered from TeX Live, MiKTeX, and local Tectonic bundles, including declarations in auxiliary definition files and primitive aliases.
-- Loading `unicode-math` now satisfies commands from its internal XeTeX and LuaTeX adapters, while core symbols such as `\to` remain package-independent.
-- The floating formatting toolbar now appears only for prose selections, not when selecting LaTeX commands or mathematical markup.
-- PDF previews can now follow the source caret to the corresponding page, with controls in both the preview toolbar and Preview settings.
-- Continuous preview now virtualizes long PDFs in a single lightweight canvas, avoiding thousands of page controls and keeping scrolling fast.
-- Large papers now receive inspections and structure navigation substantially faster by reusing document-root, package, declaration, and outline analysis.
+O **LaTeX Compile & Preview** transforma IDEs baseadas na plataforma IntelliJ (IntelliJ IDEA Ultimate/Community, PyCharm, CLion, WebStorm, etc.) em uma estação de trabalho LaTeX profissional e autossuficiente:
+
+* **Zero Troca de Janelas:** Painel dividido lado a lado (*Split View*) com código-fonte à esquerda e renderização PDF à direita.
+* **Auto-Compilação Reativa:** Captura instantânea de digitação e salvamentos com *debounce* inteligente e exclusão mútua por arquivo, prevenindo colisões de processos no `latexmk`.
+* **Renderização Determinística:** Mecanismo JCEF (Chromium) + PDF.js moderno com garantia estrita de ordenação de páginas (evitando deslocamento de referências e apêndices) e tratamento robusto de concorrência via IDs de renderização.
+* **Busca Reversa (SyncTeX):** Salto bidirecional do PDF diretamente para a linha do código-fonte com duplo clique.
+* **Soberania e Privacidade:** Processamento 100% local, sem telemetria, sem envio de manuscritos para serviços externos em nuvem.
 
 ---
 
-## ℹ️ Additional Info for Developers
+## 🚀 Instalação e Guia Rápido
 
-- **Repository**: [https://github.com/joelmaykon94/plugin-intellij-latex-compile](https://github.com/joelmaykon94/plugin-intellij-latex-compile)
-- **Author / Maintainer**: Joel Maykon (`joelmaykon94@gmail.com`)
-- **Compatibility**: IntelliJ IDEA 2024.2+ up to 2026.x (`sinceBuild = 242`, `untilBuild = 263.*`)
-- **Runtime**: Java 21 (JVM 21) & Gradle 8.10.2
-- **Privacy & Security**: Language editing works without a TeX distribution. External tools are optional, run locally, and are never bundled. Shell escape is disabled by default. The plugin contains no telemetry and never transmits document contents.
+O plugin pode ser instalado em qualquer IDE JetBrains compatível (versão 2024.2 até 2026.x):
 
----
+### Modo 1: Instalação via Release ZIP (Recomendado)
 
-## 🛠️ Build & Install
+1. Baixe o pacote mais recente `intellij-latex-plugin-2026.1.1.2.zip` na aba [Releases](https://github.com/joelmaykon94/plugin-intellij-latex-compile/releases).
+2. No IntelliJ IDEA, acesse **Settings / Preferences** (`Ctrl + Alt + S` ou `Cmd + ,`).
+3. Navegue até **Plugins** → clique na engrenagem ⚙️ → **Install Plugin from Disk...**.
+4. Selecione o arquivo `.zip` baixado e reinicie a IDE quando solicitado.
+
+### Modo 2: Repositório de Atualizações Personalizado (Update Channel)
+
+Adicione o repositório oficial para receber atualizações automáticas na própria interface do IntelliJ:
+
+1. Acesse **Settings → Plugins → ⚙️ → Manage Plugin Repositories...**.
+2. Adicione a URL:
+   ```text
+   https://raw.githubusercontent.com/joelmaykon94/plugin-intellij-latex-compile/main/updatePlugins.xml
+   ```
+3. Pesquise por **LaTeX Compile & Preview** na aba *Marketplace* e clique em **Install**.
+
+### Modo 3: Compilação a partir do Código-Fonte
 
 ```bash
-# Set Java 21 & Gradle via mise
-mise use java@21 gradle@8.10.2
+# 1. Clonar o repositório:
+git clone https://github.com/joelmaykon94/plugin-intellij-latex-compile.git
+cd plugin-intellij-latex-compile
 
-# Build the plugin ZIP
+# 2. Compilar e empacotar o plugin:
 ./gradlew buildPlugin
+
+# 3. O artefato final estará disponível em:
+# build/distributions/intellij-latex-plugin-2026.1.1.2.zip
 ```
 
-Install via IntelliJ:
-**Settings → Plugins → ⚙️ → Install Plugin from Disk...** and choose `build/distributions/intellij-latex-plugin-1.0.0.zip`.
+---
+
+## 🏛️ Arquitetura do Plugin
+
+O plugin foi desenhado seguindo as diretrizes de arquitetura de extensões modernas da plataforma IntelliJ, priorizando chamadas assíncronas não-bloqueantes para a UI, confinamento estrito de acessos à thread de despacho (EDT) e isolamento de processos de I/O em corrotinas.
+
+### Diagrama de Sequência do Pipeline Reativo
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Usuário (Editor LaTeX)
+    participant IDE as IntelliJ EditorFactory
+    participant Service as LatexAutoCompileService
+    participant Mutex as Per-File Mutex Lock
+    participant Compiler as LatexCompiler (latexmk)
+    participant VFS as Virtual File System (VFS)
+    participant JCEF as JCEF Chromium (PdfPreviewPanel)
+    participant PDFJS as PDF.js Engine
+
+    User->>IDE: Digita código ou salva arquivo (.tex)
+    IDE->>Service: Dispara DocumentEvent / SaveEvent
+    Note over Service: Debounce de 600ms via Kotlin Flow
+    Service->>IDE: Flush síncrono em EDT (FileDocumentManager.saveDocument)
+    Service->>Mutex: Adquire lock exclusivo do arquivo
+    Mutex->>Compiler: Inicia processo latexmk (-pdf -synctex=1)
+    Compiler->>Compiler: Valida exitCode == 0 e existência do PDF
+    Compiler->>VFS: Invalida e atualiza cache em disco (LocalFileSystem.refresh)
+    Compiler->>Service: Callback onSuccess(pdfFile)
+    Service->>JCEF: Converte PDF para Base64 e despacha via IPC
+    JCEF->>PDFJS: window.renderPdfFromBase64(base64)
+    Note over PDFJS: Renderização estritamente sequencial com async/await (1..N)
+    PDFJS-->>User: Atualiza visualização sem reordenação de páginas
+    Mutex->>Mutex: Libera lock para a próxima alteração
+```
+
+---
+
+## 📂 Estrutura do Código-Fonte
+
+```
+intellij-latex-plugin/
+├── src/main/kotlin/com/github/joelmaykon94/latex/
+│   ├── compiler/
+│   │   ├── LatexCompiler.kt            ← Wrapper executável do latexmk com checagem de integridade e exit code
+│   │   ├── LatexAutoCompileService.kt  ← Serviço de projeto reativo com debounce (Kotlin Flow) e Mutex por arquivo
+│   │   └── LatexStartupActivity.kt     ← StartupActivity para inicialização automática do pipeline de compilação
+│   ├── editor/
+│   │   ├── LatexSplitEditorProvider.kt ← Provedor de editor dividido (Code + PDF Preview)
+│   │   ├── LatexEditorWithPreview.kt   ← Componente Split View com layout reativo
+│   │   └── LatexPreviewFileEditor.kt   ← Wrapper do FileEditor para o preview PDF
+│   ├── preview/
+│   │   └── PdfPreviewPanel.kt          ← Painel de visualização JCEF + PDF.js com renderização sequencial e barra de controle
+│   ├── lang/
+│   │   ├── LatexFileType.kt            ← Associação de extensões (.tex, .sty, .cls, .dtx, .ins)
+│   │   ├── LatexLanguage.kt            ← Definição da linguagem no subsistema IntelliJ
+│   │   └── LatexIcons.kt               ← Identidade visual e ícones SVG de alta densidade
+│   ├── lexer/
+│   │   ├── LatexSimpleLexer.kt         ← Lexer léxico determinístico para realce de comandos e ambientes
+│   │   └── LatexTokenTypes.kt          ← Tipagem formal de tokens para syntax highlighting
+│   └── highlighting/
+│       ├── LatexSyntaxHighlighter.kt   ← Mapeamento de atributos de cor e temas (Dark/Light)
+│       └── LatexSyntaxHighlighterFactory.kt
+└── src/main/resources/
+    ├── META-INF/
+    │   ├── plugin.xml                  ← Declaração de extensões, serviços e metadados de compatibilidade
+    │   └── pluginIcon.svg              ← Ícone vetorial oficial do plugin
+    └── icons/latex.svg
+```
+
+---
+
+## ⚡ Engenharia e Recursos Internos
+
+### 1. 📄 Renderizador PDF.js Sequencial & À Prova de Race Conditions
+Diferente de abordagens ingênuas onde páginas são carregadas em promises paralelas não-ordenadas (o que fazia seções textuais leves, como **Referências Bibliográficas**, serem injetadas no DOM antes de páginas mais pesadas), o motor interno de [`PdfPreviewPanel.kt`](src/main/kotlin/com/github/joelmaykon94/latex/preview/PdfPreviewPanel.kt) adota:
+* **Execução Sequencial (`async/await`):** Cada página $k$ é obtida, alocada e renderizada estritamente após a conclusão da página $k-1$.
+* **Identificadores Atômicos de Renderização (`renderId`):** Se uma nova compilação for finalizada enquanto um documento longo ainda estiver renderizando, o ciclo anterior é abortado instantaneamente para evitar consumo de memória e *page flickering*.
+* **Suporte a Filas de Inicialização (`pendingBase64Data`):** Previne perdas de renderização caso a primeira compilação termine antes da conclusão do bootstrap do Chromium no JCEF.
+
+### 2. 🛡️ Pipeline de Auto-Compilação com Mutex e Debounce
+Para evitar travamentos comuns no `latexmk` causados por escrita concorrente em arquivos temporários:
+* O pipeline aplica uma janela de **debounce de 600ms** através de `MutableSharedFlow` em corrotinas do Kotlin.
+* Implementa **Mutex per-file (`ConcurrentHashMap<String, Mutex>`)**, assegurando que compilações sucessivas para o mesmo manuscrito sejam enfileiradas de forma determinística.
+* Garante a persistência do buffer do documento no disco (`FileDocumentManager.saveDocument`) executada na thread segura (EDT), garantindo que o compilador leia o estado mais recente do código.
+
+### 3. 🎯 Inspeção Precisa de Erros e Saídas de Compilação
+O subsistema [`LatexCompiler.kt`](src/main/kotlin/com/github/joelmaykon94/latex/compiler/LatexCompiler.kt) avalia o código de retorno real do processo (`exitCode == 0`):
+* Falhas de compilação exibem imediatamente um painel vermelho estilizado com o trecho exato do erro (`! Undefined control sequence`, `Fatal error`, etc.).
+* O visualizador previne a apresentação de PDFs obsoletos em caso de falha do build atual.
+
+### 4. 🧭 Barra de Ferramentas e Controles de Visualização
+O preview conta com uma barra superior sticky equipada com:
+* **Status em tempo real:** Indicador visual de compilação, renderização ou mensagens de erro.
+* **⚡ Recompilar Manual:** Botão de acionamento forçado para recompilação imediata sem necessidade de alterar o texto.
+* **Controles de Zoom:** Zoom-in (`➕`), zoom-out (`➖`) e indicador numérico percentual dinâmico.
+* **Salto Bidirecional (SyncTeX):** Duplo clique em qualquer página salta diretamente para o ponto do cursor no editor LaTeX.
+
+---
+
+## 🛠️ Stack Tecnológica
+
+| Componente | Tecnologia / Ferramenta | Versão / Padrão | Finalidade |
+| :--- | :--- | :--- | :--- |
+| **Linguagem Base** | Kotlin | `2.0.20` | Desenvolvimento moderno, tipado e com suporte a corrotinas |
+| **Plataforma Host** | IntelliJ Platform SDK | `2024.3.1` (Compatível 2024.2 até 2026.x) | Integração nativa com a arquitetura de plugins JetBrains |
+| **Runtime JVM** | OpenJDK | `Java 21 LTS` | Execução com virtual threads e alta performance |
+| **Motor Web Preview** | JetBrains Runtime JCEF | Chromium Embedded Framework | Contêiner web nativo embutido na IDE |
+| **Biblioteca de Render**| Mozilla PDF.js | `4.4.168` | Decodificação e pintura de documentos PDF em Canvas 2D |
+| **Compilador Externo** | `latexmk` / `pdflatex` | TeX Live / MiKTeX | Automação das etapas de compilação TeX, BibTeX e SyncTeX |
+| **Build System** | Gradle | `8.10.2` via `gradle-wrapper` | Automação de compilação, testes e empacotamento |
+
+---
+
+## 🔧 Diagnóstico e Resolução de Problemas
+
+> [!TIP]
+> **Onde verificar os logs do plugin?**
+> No IntelliJ IDEA, acesse o menu **Help → Show Log in File Manager** e inspecione o arquivo `idea.log`. Linhas relacionadas ao plugin são prefixadas por `LatexCompiler` ou `PdfPreviewPanel`.
+
+| Sintoma | Causa Mais Comum | Solução Recomendada |
+| :--- | :--- | :--- |
+| **Aviso: "JCEF is not supported"** | A IDE está sendo executada com uma JVM padrão sem suporte a JCEF. | Utilize o JetBrains Runtime padrão (JBR) configurado nas configurações de runtime da IDE. |
+| **Erro: "latexmk: command not found"** | A distribuição LaTeX (TeX Live / MiKTeX) não está presente no `PATH` do sistema. | Instale o TeX Live (`sudo pacman -S texlive-meta` / `sudo apt install texlive-full`) ou certifique-se de que o binário `latexmk` esteja no PATH do sistema operacional. |
+| **Painel de erro vermelho exibido** | Erro de sintaxe no documento LaTeX (comando inexistente, chave não fechada, etc.). | Leia o resumo apresentado no painel vermelho ou abra o arquivo `.log` gerado na pasta do documento. Corrija a sintaxe e clique em **⚡ Recompilar**. |
+| **Alteração não reflete no PDF** | O documento anterior estava com erro de compilação retendo a versão antiga. | Verifique se a compilação retorna código zero e clique em **⚡ Recompilar** na barra superior. |
+
+---
+
+## 🤝 Contribuição e Desenvolvimento
+
+Contribuições da comunidade acadêmica e de desenvolvedores de software são muito bem-vindas:
+
+1. Faça um Fork do projeto no GitHub.
+2. Crie uma branch para sua funcionalidade ou correção:
+   ```bash
+   git checkout -b feat/minha-melhoria
+   ```
+3. Execute o build local para validação dos artefatos:
+   ```bash
+   ./gradlew check buildPlugin
+   ```
+4. Submeta um Pull Request detalhado descrevendo as alterações realizadas.
+
+---
+
+## 📜 Licença e Autoria
+
+* **Licença:** Distribuído sob a licença [Apache 2.0](LICENSE).
+* **Autor / Mantenedor:** [Joel Maykon](https://github.com/joelmaykon94) (`joelmaykon94@gmail.com`).
+* **Repositório Oficial:** [github.com/joelmaykon94/plugin-intellij-latex-compile](https://github.com/joelmaykon94/plugin-intellij-latex-compile).
+
