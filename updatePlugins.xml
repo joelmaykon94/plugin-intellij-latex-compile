@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
     <plugin id="com.github.joelmaykon94.intellij-latex-plugin"
-            url="https://github.com/joelmaykon94/plugin-intellij-latex-compile/releases/download/v2026.1.1.1/intellij-latex-plugin-2026.1.1.1.zip"
-            version="2026.1.1.1">
+            url="https://github.com/joelmaykon94/plugin-intellij-latex-compile/releases/download/v2026.1.1.2/intellij-latex-plugin-2026.1.1.2.zip"
+            version="2026.1.1.2">
         <name>LaTeX Compile &amp; Preview</name>
         <description><![CDATA[LaTeX brings first-class LaTeX and BibTeX authoring to IntelliJ Platform IDEs with real-time PDF preview and local compilation.]]></description>
         <change-notes><![CDATA[Initial release with real-time split PDF preview, debounced latexmk auto-compilation, and syntax highlighting.]]></change-notes>
