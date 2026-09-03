@@ -40,7 +40,7 @@ O plugin pode ser instalado em qualquer IDE JetBrains compatível (versão 2024.
 
 ### Modo 1: Instalação via Release ZIP (Recomendado)
 
-1. Baixe o pacote mais recente `intellij-latex-plugin-2026.1.1.2.zip` na aba [Releases](https://github.com/joelmaykon94/plugin-intellij-latex-compile/releases).
+1. Baixe o pacote mais recente `intellij-latex-plugin-2026.1.1.3.zip` na aba [Releases](https://github.com/joelmaykon94/plugin-intellij-latex-compile/releases).
 2. No IntelliJ IDEA, acesse **Settings / Preferences** (`Ctrl + Alt + S` ou `Cmd + ,`).
 3. Navegue até **Plugins** → clique na engrenagem ⚙️ → **Install Plugin from Disk...**.
 4. Selecione o arquivo `.zip` baixado e reinicie a IDE quando solicitado.
@@ -67,7 +67,7 @@ cd plugin-intellij-latex-compile
 ./gradlew buildPlugin
 
 # 3. O artefato final estará disponível em:
-# build/distributions/intellij-latex-plugin-2026.1.1.2.zip
+# build/distributions/intellij-latex-plugin-2026.1.1.3.zip
 ```
 
 ---
