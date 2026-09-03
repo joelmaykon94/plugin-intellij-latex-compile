@@ -73,6 +73,7 @@
     ]]></change-notes>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends optional="true">com.intellij.modules.jcef</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- File Type -->
@@ -95,5 +96,9 @@
         <!-- Auto-Compile Service (Project-level) -->
         <projectService
             serviceImplementation="com.github.joelmaykon94.latex.compiler.LatexAutoCompileService"/>
+
+        <!-- Project Startup Activity to initialize auto-compile -->
+        <postStartupActivity
+            implementation="com.github.joelmaykon94.latex.compiler.LatexStartupActivity"/>
     </extensions>
 </idea-plugin>

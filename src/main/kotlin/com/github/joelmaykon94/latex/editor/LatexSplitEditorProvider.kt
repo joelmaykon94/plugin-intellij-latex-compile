@@ -20,7 +20,7 @@ class LatexSplitEditorProvider : FileEditorProvider, DumbAware {
     override fun createEditor(project: Project, file: VirtualFile): FileEditor {
         val textEditor = TextEditorProvider.getInstance().createEditor(project, file) as TextEditor
         val previewEditor = LatexPreviewFileEditor(project, file)
-        return LatexEditorWithPreview(textEditor, previewEditor)
+        return LatexEditorWithPreview(project, textEditor, previewEditor)
     }
 
     override fun getEditorTypeId(): String = "latex-split-editor"

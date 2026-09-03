@@ -48,7 +48,11 @@ class PdfPreviewPanel(
             Disposer.register(this, query)
 
             query.addHandler { data ->
-                handleInverseSearch(data)
+                when {
+                    data == "recompile" -> triggerInitialCompilation()
+                    data.startsWith("page:") -> handleInverseSearch(data.removePrefix("page:"))
+                    else -> handleInverseSearch(data)
+                }
                 JBCefJSQuery.Response("OK")
             }
 
@@ -85,7 +89,13 @@ class PdfPreviewPanel(
 
                 ApplicationManager.getApplication().invokeLater {
                     browser?.cefBrowser?.executeJavaScript(
-                        "window.renderPdfFromBase64('$base64');",
+                        """
+                        if (window.renderPdfFromBase64) {
+                            window.renderPdfFromBase64('$base64');
+                        } else {
+                            window.pendingBase64Data = '$base64';
+                        }
+                        """.trimIndent(),
                         browser?.cefBrowser?.url ?: "",
                         0
                     )
@@ -136,32 +146,71 @@ class PdfPreviewPanel(
             body {
               background-color: #1e1e1e;
               color: #d4d4d4;
-              font-family: 'JetBrains Mono', 'Consolas', monospace;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
               overflow-y: auto;
-              padding: 16px;
+              padding: 0;
             }
-            #status {
-              font-size: 13px;
-              color: #888;
-              text-align: center;
-              padding: 8px;
+            #toolbar {
               position: sticky;
               top: 0;
-              background: #1e1e1e;
+              background: #252526;
+              border-bottom: 1px solid #3c3c3c;
               z-index: 100;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              padding: 6px 14px;
+              gap: 10px;
+              font-size: 12px;
+            }
+            #status {
+              color: #cccccc;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            #toolbar-actions {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              flex-shrink: 0;
+            }
+            button {
+              background: #333333;
+              color: #e0e0e0;
+              border: 1px solid #4a4a4a;
+              border-radius: 4px;
+              padding: 3px 8px;
+              cursor: pointer;
+              font-size: 11px;
+              display: inline-flex;
+              align-items: center;
+              gap: 4px;
+              transition: background 0.15s;
+            }
+            button:hover {
+              background: #444444;
+              border-color: #666666;
+            }
+            #zoom-val {
+              min-width: 42px;
+              text-align: center;
+              font-size: 11px;
+              color: #aaa;
             }
             #container {
               display: flex;
               flex-direction: column;
               align-items: center;
-              gap: 12px;
-              padding-bottom: 20px;
+              gap: 16px;
+              padding: 16px 10px 40px 10px;
             }
             canvas {
-              box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
-              border-radius: 2px;
+              box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+              border-radius: 3px;
               max-width: 100%;
               height: auto;
+              background-color: #ffffff;
             }
             #error-panel {
               display: none;
@@ -171,6 +220,7 @@ class PdfPreviewPanel(
               padding: 16px;
               margin: 16px;
               font-size: 12px;
+              font-family: 'JetBrains Mono', 'Consolas', monospace;
               white-space: pre-wrap;
               word-wrap: break-word;
               color: #ff6b6b;
@@ -180,7 +230,15 @@ class PdfPreviewPanel(
           </style>
         </head>
         <body>
-          <div id="status">⏳ Aguardando compilação...</div>
+          <div id="toolbar">
+            <div id="status">⏳ Aguardando compilação...</div>
+            <div id="toolbar-actions">
+              <button id="recompile-btn" title="Recompilar documento">⚡ Recompilar</button>
+              <button id="zoom-out-btn" title="Reduzir zoom">➖</button>
+              <span id="zoom-val">150%</span>
+              <button id="zoom-in-btn" title="Aumentar zoom">➕</button>
+            </div>
+          </div>
           <div id="error-panel"></div>
           <div id="container"></div>
 
@@ -190,51 +248,61 @@ class PdfPreviewPanel(
 
             let currentPdf = null;
             let currentScale = 1.5;
+            let currentRenderId = 0;
 
-            window.renderPdfFromBase64 = function(base64Data) {
+            async function renderPages(pdf, renderId) {
+              const container = document.getElementById('container');
+              container.innerHTML = '';
+
+              for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                if (renderId !== currentRenderId) return;
+                const page = await pdf.getPage(pageNum);
+                if (renderId !== currentRenderId) return;
+
+                const viewport = page.getViewport({ scale: currentScale });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                canvas.title = 'Página ' + pageNum;
+
+                canvas.ondblclick = function() {
+                  const payload = 'page:' + pageNum.toString();
+                  ${'$'}injectJs
+                };
+
+                container.appendChild(canvas);
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+              }
+
+              if (renderId === currentRenderId) {
+                document.getElementById('status').innerText =
+                  '✅ PDF renderizado — ' + pdf.numPages + ' página(s)';
+              }
+            }
+
+            window.renderPdfFromBase64 = async function(base64Data) {
+              const renderId = ++currentRenderId;
               document.getElementById('status').innerText = '🔄 Renderizando PDF...';
               document.getElementById('error-panel').style.display = 'none';
 
-              const raw = atob(base64Data);
-              const uint8Array = new Uint8Array(raw.length);
-              for (let i = 0; i < raw.length; i++) {
-                uint8Array[i] = raw.charCodeAt(i);
-              }
-
-              pdfjsLib.getDocument({ data: uint8Array }).promise.then(function(pdf) {
-                currentPdf = pdf;
-                const container = document.getElementById('container');
-                container.innerHTML = '';
-
-                const renderPromises = [];
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                  renderPromises.push(
-                    pdf.getPage(pageNum).then(function(page) {
-                      const viewport = page.getViewport({ scale: currentScale });
-                      const canvas = document.createElement('canvas');
-                      const context = canvas.getContext('2d');
-                      canvas.height = viewport.height;
-                      canvas.width = viewport.width;
-                      canvas.title = 'Página ' + pageNum;
-
-                      canvas.ondblclick = function() {
-                        const payload = pageNum.toString();
-                        ${'$'}injectJs
-                      };
-
-                      container.appendChild(canvas);
-                      return page.render({ canvasContext: context, viewport: viewport }).promise;
-                    })
-                  );
+              try {
+                const raw = atob(base64Data);
+                const uint8Array = new Uint8Array(raw.length);
+                for (let i = 0; i < raw.length; i++) {
+                  uint8Array[i] = raw.charCodeAt(i);
                 }
 
-                Promise.all(renderPromises).then(function() {
-                  document.getElementById('status').innerText =
-                    '✅ PDF renderizado — ' + pdf.numPages + ' página(s)';
-                });
-              }).catch(function(err) {
-                document.getElementById('status').innerText = '❌ Erro: ' + err.message;
-              });
+                const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
+                if (renderId !== currentRenderId) return;
+
+                currentPdf = pdf;
+                await renderPages(pdf, renderId);
+              } catch (err) {
+                if (renderId === currentRenderId) {
+                  document.getElementById('status').innerText = '❌ Erro: ' + err.message;
+                }
+              }
             };
 
             window.showCompilationError = function(msg) {
@@ -243,6 +311,28 @@ class PdfPreviewPanel(
               panel.style.display = 'block';
               document.getElementById('status').innerText = '❌ Erro de compilação';
             };
+
+            document.getElementById('zoom-in-btn').onclick = function() {
+              currentScale = Math.min(currentScale + 0.25, 3.0);
+              document.getElementById('zoom-val').innerText = Math.round(currentScale * 100) + '%';
+              if (currentPdf) renderPages(currentPdf, ++currentRenderId);
+            };
+
+            document.getElementById('zoom-out-btn').onclick = function() {
+              currentScale = Math.max(currentScale - 0.25, 0.5);
+              document.getElementById('zoom-val').innerText = Math.round(currentScale * 100) + '%';
+              if (currentPdf) renderPages(currentPdf, ++currentRenderId);
+            };
+
+            document.getElementById('recompile-btn').onclick = function() {
+              const payload = 'recompile';
+              ${'$'}injectJs
+            };
+
+            if (window.pendingBase64Data) {
+              window.renderPdfFromBase64(window.pendingBase64Data);
+              window.pendingBase64Data = null;
+            }
           </script>
         </body>
         </html>

@@ -54,7 +54,8 @@ object LatexCompiler {
                         return
                     }
 
-                    if (expectedPdf.exists()) {
+                    if (output.exitCode == 0 && expectedPdf.exists()) {
+                        com.intellij.openapi.vfs.LocalFileSystem.getInstance().refreshAndFindFileByIoFile(expectedPdf)
                         ApplicationManager.getApplication().invokeLater {
                             onSuccess(expectedPdf)
                         }
