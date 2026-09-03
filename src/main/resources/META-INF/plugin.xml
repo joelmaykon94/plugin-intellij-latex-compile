@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.github.joelmaykon94.intellij-latex-plugin</id>
     <name>LaTeX Compile &amp; Preview</name>
-    <version>1.0.0</version>
+    <version>2026.1.1.1</version>
     <vendor email="joelmaykon94@gmail.com" url="https://github.com/joelmaykon94/plugin-intellij-latex-compile">Joel Maykon</vendor>
 
     <description><![CDATA[
