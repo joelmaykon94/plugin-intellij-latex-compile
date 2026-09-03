@@ -12,7 +12,7 @@
 [![Gradle](https://img.shields.io/badge/Gradle-8.10.2-02303A?logo=gradle)](https://gradle.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-**Split Editor Nativo · Pipeline de Compilação Reativo com Mutex · Renderizador PDF.js via JCEF · SyncTeX & Scroll Sync · Zoom Avançado · Download de PDF**
+**Split Editor Nativo · Auto-Complete & Snippets · Pipeline Reativo com Mutex · Renderizador PDF.js via JCEF · SyncTeX & Scroll Sync · Zoom Avançado · Download de PDF**
 
 [Visão Geral](#-por-que-o-latex-compile--preview) · [Instalação e Uso](#-instalação-e-guia-rápido) · [Arquitetura e Engenharia](#-arquitetura-do-plugin) · [Recursos Detalhados](#-engenharia-e-recursos-internos) · [Troubleshooting](#-diagnóstico-e-resolução-de-problemas) · [Stack](#-stack-tecnológica)
 
@@ -27,6 +27,8 @@ O fluxo tradicional de escrita acadêmica e técnica em LaTeX frequentemente sof
 O **LaTeX Compile & Preview** transforma IDEs baseadas na plataforma IntelliJ (IntelliJ IDEA Ultimate/Community, PyCharm, CLion, WebStorm, etc.) em uma estação de trabalho LaTeX profissional e autossuficiente:
 
 * **Zero Troca de Janelas:** Painel dividido lado a lado (*Split View*) com código-fonte à esquerda e renderização PDF à direita.
+* **Auto-Complete Contextual e Snippets:** Sugestões inteligentes ao digitar `\` para comandos e ambientes (`figure`, `table`, `equation`, `itemize`), com inserção automática de templates e fechamento de delimitadores.
+* **Comentário de Linhas Nativo:** Suporte a `Ctrl + /` (ou `Cmd + /`) para comentar e descomentar código LaTeX instantaneamente.
 * **Auto-Compilação Reativa:** Captura instantânea de digitação e salvamentos com *debounce* inteligente e exclusão mútua por arquivo, prevenindo colisões de processos no `latexmk`.
 * **Renderização Determinística:** Mecanismo JCEF (Chromium) + PDF.js moderno com garantia estrita de ordenação de páginas (evitando deslocamento de referências e apêndices) e tratamento robusto de concorrência via IDs de renderização.
 * **Busca Reversa (SyncTeX):** Salto bidirecional do PDF diretamente para a linha do código-fonte com duplo clique.
@@ -40,7 +42,7 @@ O plugin pode ser instalado em qualquer IDE JetBrains compatível (versão 2024.
 
 ### Modo 1: Instalação via Release ZIP (Recomendado)
 
-1. Baixe o pacote mais recente `intellij-latex-plugin-2026.1.1.3.zip` na aba [Releases](https://github.com/joelmaykon94/plugin-intellij-latex-compile/releases).
+1. Baixe o pacote mais recente `intellij-latex-plugin-2026.1.1.4.zip` na aba [Releases](https://github.com/joelmaykon94/plugin-intellij-latex-compile/releases).
 2. No IntelliJ IDEA, acesse **Settings / Preferences** (`Ctrl + Alt + S` ou `Cmd + ,`).
 3. Navegue até **Plugins** → clique na engrenagem ⚙️ → **Install Plugin from Disk...**.
 4. Selecione o arquivo `.zip` baixado e reinicie a IDE quando solicitado.
@@ -67,7 +69,7 @@ cd plugin-intellij-latex-compile
 ./gradlew buildPlugin
 
 # 3. O artefato final estará disponível em:
-# build/distributions/intellij-latex-plugin-2026.1.1.3.zip
+# build/distributions/intellij-latex-plugin-2026.1.1.4.zip
 ```
 
 ---
@@ -175,6 +177,14 @@ O preview conta com uma barra superior sticky equipada com:
   - **Atalhos de Teclado:** `Ctrl + +`, `Ctrl + -` e `Ctrl + 0` (redefinir para 100%).
   - **HiDPI / Retina Crisp Rendering:** Renderização baseada em `window.devicePixelRatio` para texto e gráficos nítidos sem perda de definição.
 * **Salto Bidirecional (SyncTeX):** Duplo clique em qualquer página salta diretamente para o ponto do cursor no editor LaTeX.
+
+### 5. 💡 Auto-Complete Contextual, Snippets & Comentários
+Para acelerar a escrita e diminuir a carga cognitiva:
+* **Autocompletion Inteligente:** Ao digitar `\`, o editor sugere instantaneamente comandos estruturais (`\section`, `\subsection`), de texto (`\textbf`, `\textit`), citações (`\cite`, `\ref`, `\label`) e matemáticos (`\frac`, `\sqrt`, `\sum`), inserindo automaticamente os delimitadores `{}` e posicionando o cursor.
+* **Expansão de Ambientes (`\begin{...}`):** Ao iniciar um bloco, sugere os ambientes mais comuns (`figure`, `table`, `equation`, `align`, `itemize`, `enumerate`, `tabular`) e expande automaticamente a estrutura completa (incluindo `\caption`, `\label` e `\end{...}`) com indentação correta.
+* **Sugestão de Pacotes e Classes:** Completa nomes de pacotes populares em `\usepackage{...}` e classes em `\documentclass{...}` com documentação embutida.
+* **Atalho de Comentário (`Ctrl + /` ou `Cmd + /`):** Comenta ou descomenta a linha/bloco atual com o caractere `%` nativo do LaTeX.
+* **Parser Definition Zero-Overhead:** Integração direta com o subsistema PSI do IntelliJ através de um parser de nó plano, sem risco de lentidão ou falsos positivos de sintaxe.
 
 ---
 

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.github.joelmaykon94.intellij-latex-plugin</id>
     <name>LaTeX Compile &amp; Preview</name>
-    <version>2026.1.1.3</version>
+    <version>2026.1.1.4</version>
     <vendor email="joelmaykon94@gmail.com" url="https://github.com/joelmaykon94/plugin-intellij-latex-compile">Joel Maykon</vendor>
 
     <description><![CDATA[
@@ -12,6 +12,8 @@
         <h3>✨ Key Features</h3>
         <ul>
             <li><b>Native Split View:</b> Work seamlessly with LaTeX source code on the left and a live PDF preview on the right.</li>
+            <li><b>Code Completion &amp; Snippets:</b> Intelligent autocomplete for LaTeX commands (<code>\section</code>, <code>\cite</code>, <code>\ref</code>, <code>\textbf</code>, etc.), environment templates (<code>\begin{figure}</code>, <code>\begin{table}</code>, <code>\begin{equation}</code>, <code>\begin{itemize}</code>), popular packages, and document classes with automatic closing braces and cursor positioning.</li>
+            <li><b>Line Commenting (Ctrl+/):</b> Native line commenting and uncommenting using <code>%</code> prefix.</li>
             <li><b>Reactive Auto-Compile:</b> Fast, debounced (600ms) background compilation on typing and saving with per-file mutex locking to prevent concurrent <code>latexmk</code> collisions.</li>
             <li><b>Embedded Chromium Preview (JCEF + PDF.js):</b> Modern PDF rendering with strict sequential page loading, eliminating race conditions that previously reordered bibliography or appendix pages.</li>
             <li><b>Scroll Synchronization:</b> Proportional scrolling between the LaTeX editor and PDF preview, with an instant toolbar toggle (<code>Sync: ON / OFF</code>).</li>
@@ -33,15 +35,13 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        <h3>Version 2026.1.1.3</h3>
+        <h3>Version 2026.1.1.4</h3>
         <ul>
-            <li><b>💾 PDF Export / Download:</b> Added a dedicated button in the preview toolbar to easily save the compiled PDF to any local disk path via the native system dialog.</li>
-            <li><b>🔗 Real-Time Scroll Sync:</b> Integrated real-time scroll synchronization between the LaTeX editor and the PDF preview, with an interactive toolbar toggle (<code>Sync: ON / OFF</code>).</li>
-            <li><b>🔍 Enhanced Zoom Controls:</b> Added granular zoom buttons (25% to 400%), quick 100%/150% toggle, Fit-to-Width button, mouse wheel zoom (<code>Ctrl/Cmd + Scroll</code>), and keyboard shortcuts (<code>Ctrl/Cmd + + / - / 0</code>).</li>
-            <li><b>📄 Deterministic Sequential Rendering:</b> Fixed race condition where lightweight pages (e.g. references and bibliographies) rendered out-of-order before earlier pages, using strict sequential async/await page processing.</li>
-            <li><b>🛡️ Concurrency Safety:</b> Introduced per-file mutex locking combined with a 600ms debounce pipeline to prevent concurrent <code>latexmk</code> build collisions and corrupted auxiliary files.</li>
-            <li><b>🎯 Error Diagnostics:</b> Improved compilation error parser to capture and present <code>latexmk</code> failures directly within a dedicated error overlay.</li>
-            <li><b>🧪 Automated Test Suite:</b> Added comprehensive unit and regression tests covering lexer tokenization, compiler error extraction, scroll synchronization math, and edge cases.</li>
+            <li><b>💡 Code Completion:</b> Context-aware autocompletion for standard LaTeX commands, environments, popular packages, and document classes.</li>
+            <li><b>📐 Smart Environment Templates:</b> Automated snippet expansion for <code>figure</code>, <code>table</code>, <code>equation</code>, <code>align</code>, <code>itemize</code>, and <code>enumerate</code> with automatic closing tags and cursor placement.</li>
+            <li><b>💬 Line Commenting:</b> Native line comment support (<code>Ctrl + /</code> or <code>Cmd + /</code>) using <code>%</code> delimiters.</li>
+            <li><b>⚡ Zero-Overhead PSI &amp; Parser Definition:</b> Integrated flat AST parser definition enabling IntelliJ code insight features without risk of false-positive syntax errors.</li>
+            <li><b>🧪 Automated Test Coverage:</b> Added unit test suite covering completion dictionaries, environment templates, commenter, and parser definitions.</li>
         </ul>
     ]]></change-notes>
 
@@ -57,10 +57,25 @@
             language="LaTeX"
             extensions="tex;sty;cls;dtx;ins"/>
 
+        <!-- Parser Definition (Lightweight PSI) -->
+        <lang.parserDefinition
+            language="LaTeX"
+            implementationClass="com.github.joelmaykon94.latex.psi.LatexParserDefinition"/>
+
         <!-- Syntax Highlighting -->
         <lang.syntaxHighlighterFactory
             language="LaTeX"
             implementationClass="com.github.joelmaykon94.latex.highlighting.LatexSyntaxHighlighterFactory"/>
+
+        <!-- Line Commenter (Ctrl+/) -->
+        <lang.commenter
+            language="LaTeX"
+            implementationClass="com.github.joelmaykon94.latex.commenter.LatexCommenter"/>
+
+        <!-- Code Completion -->
+        <completion.contributor
+            language="LaTeX"
+            implementationClass="com.github.joelmaykon94.latex.completion.LatexCompletionContributor"/>
 
         <!-- Split Editor (Source + PDF Preview) -->
         <fileEditorProvider

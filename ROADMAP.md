@@ -22,10 +22,10 @@ Este documento estabelece o plano arquitetural para implementar gradualmente tod
 ### 🔹 Fase 1: Inteligência Básica de Edição (Quick Wins)
 *Objetivo: Tornar a digitação de código LaTeX fluida e intuitiva sem qualquer impacto na performance.*
 
-- [ ] **1.1 Autocompletion de Comandos (`LatexCompletionContributor`)**
+- [x] **1.1 Autocompletion de Comandos (`LatexCompletionContributor`)**
   - Autocomplete de comandos essenciais ao digitar `\` (`\section`, `\subsection`, `\textbf`, `\textit`, `\emph`, `\cite`, `\ref`, `\label`, `\begin`, `\end`, `\input`, `\include`).
   - Inserção automática de fechamento de chaves `{}` e posicionamento do cursor.
-- [ ] **1.2 Autocompletion de Ambientes (`LatexEnvironmentCompletion`)**
+- [x] **1.2 Autocompletion de Ambientes (`LatexEnvironmentCompletion`)**
   - Sugestões contextuais após `\begin{` ou `\end{` com ambientes padrão: `document`, `figure`, `table`, `equation`, `align`, `itemize`, `enumerate`, `description`, `center`, `abstract`, `verbatim`.
 - [ ] **1.3 Dobramento de Código (`LatexFoldingBuilder`)**
   - Recolhimento de blocos `\begin{env} ... \end{env}`.
