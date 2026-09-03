@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="paperGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F1F5F9"/>
+    </linearGradient>
+    <linearGradient id="capGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background container with rounded corners -->
+  <rect width="40" height="40" rx="8" fill="url(#bgGrad)" stroke="#334155" stroke-width="1"/>
+
+  <!-- Academic Paper Document -->
+  <path d="M10 11 C10 9.89 10.89 9 12 9 L24 9 L30 15 L30 33 C30 34.1 29.1 35 28 35 L12 35 C10.9 35 10 34.1 10 33 Z" fill="url(#paperGrad)"/>
+  <!-- Folded Corner -->
+  <path d="M24 9 L24 15 L30 15 Z" fill="#CBD5E1"/>
+
+  <!-- Paper Scientific Content Lines -->
+  <rect x="13" y="18" width="8" height="1.5" rx="0.75" fill="#64748B"/>
+  <rect x="13" y="21" width="13" height="1.5" rx="0.75" fill="#94A3B8"/>
+  <rect x="13" y="24" width="10" height="1.5" rx="0.75" fill="#94A3B8"/>
+
+  <!-- Mathematical Sigma (sum) symbol for scientific rigor -->
+  <path d="M14 27 L20 27 L16.5 29.5 L20 32 L14 32 L14 30.5 L17.5 29.5 L14 28.5 Z" fill="#0284C7"/>
+  <!-- TeX badge text -->
+  <text x="21.5" y="31.5" font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="4.5" font-weight="bold" fill="#0F172A">TeX</text>
+
+  <!-- Academic Mortarboard (Graduation / Scientific Research Cap) -->
+  <!-- Cap Diamond -->
+  <polygon points="20,4 32,8.5 20,13 8,8.5" fill="url(#capGrad)"/>
+  <!-- Skullcap base -->
+  <path d="M13 10.5 L13 14 C13 16 16.5 17.5 20 17.5 C23.5 17.5 27 16 27 14 L27 10.5 L20 13 Z" fill="#0369A1"/>
+  <!-- Tassel button and string -->
+  <circle cx="20" cy="8.5" r="1" fill="#FCD34D"/>
+  <path d="M20 8.5 Q 26 9.5 27.5 13.5 L27 16.5 L28 16.5 L28 13.5 Z" fill="#F59E0B"/>
+</svg>

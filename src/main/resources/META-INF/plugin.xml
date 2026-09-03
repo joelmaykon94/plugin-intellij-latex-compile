@@ -1,0 +1,99 @@
+<idea-plugin>
+    <id>com.github.joelmaykon94.intellij-latex-plugin</id>
+    <name>LaTeX Compile &amp; Preview</name>
+    <version>1.0.0</version>
+    <vendor email="joelmaykon94@gmail.com" url="https://github.com/joelmaykon94/plugin-intellij-latex-compile">Joel Maykon</vendor>
+
+    <description><![CDATA[
+        <h2>LaTeX brings first-class LaTeX and BibTeX authoring to IntelliJ Platform IDEs.</h2>
+
+        <h3>✨ Write with IDE intelligence</h3>
+        <ul>
+            <li>Syntax and semantic highlighting, completion, documentation, formatting, folding, inspections, spellchecking, and Grazie prose support.</li>
+            <li>Project-aware diagnostics for undefined commands, include cycles, structural mistakes, unused declarations, duplicates, and obsolete constructs.</li>
+            <li>Project-aware navigation, rename and find usages for labels, citations, commands, environments, packages, and included files.</li>
+            <li>Structure views, breadcrumbs, live and postfix templates, source intentions, a floating formatting toolbar, Cmd+N generation, visual table insertion, an equation editor, and Beamer support.</li>
+        </ul>
+
+        <h3>📚 Manage bibliographies</h3>
+        <ul>
+            <li>Search rich citation completion by key, author, title, or year; navigate, rename, find usages, or safely delete entries.</li>
+            <li>Complete and refactor @string macros, format and fold BibTeX entries, validate styles, find unused entries, and open attached PDFs.</li>
+            <li>Keep chapterbib resources chapter-scoped; index exported .bib files or securely synchronize cached Zotero, Better BibTeX, Mendeley, and HTTPS bibliography sources.</li>
+        </ul>
+
+        <h3>⚡ Build and preview locally</h3>
+        <ul>
+            <li>Compile with latexmk, Tectonic, or pdfLaTeX/XeLaTeX/LuaLaTeX and navigate compiler diagnostics.</li>
+            <li>Infer or explicitly select the main document across multi-file projects.</li>
+            <li>Use a side-by-side PDF preview with continuous rebuilding, single-page or continuous-document display, zoom and navigation controls, and forward/reverse SyncTeX.</li>
+        </ul>
+
+        <h3>🔄 Convert documents</h3>
+        <ul>
+            <li>Convert LaTeX to Typst or Typst to LaTeX with locally installed Pandoc or Morph. Conversion is available from file context menus, Refactor, and Tools, with executable auto-detection and review-before-overwrite safeguards.</li>
+        </ul>
+
+        <p><b>🔒 Security &amp; Privacy:</b> Language editing works without a TeX distribution. External tools are optional, run locally, and are never bundled. Shell escape is disabled by default. Conversion can be lossy and should always be reviewed. The plugin contains no telemetry and does not transmit document contents.</p>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <h3>Added</h3>
+        <ul>
+            <li>Missing font families used by Babel, fontspec, and unicode-math are now highlighted directly in the editor. Verified IBM Plex fonts can be installed for the current user from the quick-fix menu, including the complete Serif, Sans, Mono, and Math families needed by a document.</li>
+        </ul>
+
+        <h3>Fixed</h3>
+        <ul>
+            <li>Builds whose main file is nested below the JetBrains project root now resolve relative packages, inputs, bibliographies, and output paths from the main file's directory unless a project root is explicitly configured.</li>
+            <li>Continuous PDF previews now render approaching pages before they enter the viewport, preventing blank pages while scrolling through longer documents.</li>
+            <li>Environments such as cases inside display math now match their \begin and \end declarations correctly instead of reporting an orphan end.</li>
+            <li>Mathematical spacing controls, floor notation, half-open intervals, and sized square delimiters now parse without misleading internal-token errors.</li>
+            <li>Missing closing brackets in command options now produce a concise, LaTeX-specific error instead of a list of internal parser token names.</li>
+            <li>Standard LaTeX commands documented by latexref, including spacing commands and page-layout parameters, no longer receive incorrect undefined-command warnings.</li>
+            <li>Commands supplied by loaded packages are now discovered from TeX Live, MiKTeX, and local Tectonic bundles, including declarations in auxiliary definition files and primitive aliases. This prevents incorrect warnings for commands such as Babel's \babelfont and amsmath's \tag.</li>
+            <li>Loading unicode-math now satisfies commands from its internal XeTeX and LuaTeX adapters, while core symbols such as \to remain package-independent.</li>
+            <li>Commands from transitively loaded packages, such as \foreach from TikZ's pgffor dependency, no longer request redundant package imports.</li>
+            <li>The floating formatting toolbar now appears only for prose selections, not when selecting LaTeX commands or mathematical markup, and no longer reports platform read-access errors while selections change.</li>
+            <li>PDF previews can now follow the source caret to the corresponding page, with controls in both the preview toolbar and Preview settings. Included files no longer open on the document's first page in single-page mode.</li>
+            <li>Conversion and project settings now fit narrower Settings windows without clipping controls or explanatory text.</li>
+            <li>Switching between included source files now reuses the unchanged main-document preview instead of starting another long LaTeX build.</li>
+            <li>Unchanged previews now reuse content-validated compiler output across editor switches and IDE restarts, while source, asset, font, tool, and build-setting changes still trigger a fresh build.</li>
+            <li>Preview build and PDF-loading progress now appears in the bottom status strip, leaving the rendered document visible and unobscured.</li>
+            <li>Before the first PDF is available, the preview now shows a clear loading state; long builds report their active tool step, elapsed time, and recent compiler activity without widening the preview pane. Failed builds show the source-aware error in a readable monospaced panel while retaining the full compiler output behind Details.</li>
+            <li>Continuous preview now virtualizes long PDFs in a single lightweight canvas, avoiding thousands of page controls and keeping scrolling and refreshes fast.</li>
+            <li>Half-open intervals written directly after \in or \notin no longer consume the rest of a document as an unfinished optional argument.</li>
+            <li>Large papers now receive inspections and structure navigation substantially faster by reusing document-root, package, declaration, and outline analysis.</li>
+            <li>Core TeX constructs, common mathematical aliases, elsarticle commands, and commands from amsmath, array, booktabs, caption, and tcolorbox no longer receive incorrect undefined-command or missing-package warnings.</li>
+            <li>Label and citation identifiers, macro parameters, and alignment markers in extended table environments no longer receive incorrect escaping warnings.</li>
+            <li>Failed PDF previews now identify the source file, line, and failing command, with a Details link for the complete parsed diagnostics and compiler output.</li>
+            <li>Tectonic previews now handle documents that use pdfTeX's page-group warning suppression control, so otherwise portable PDF collections still render.</li>
+            <li>Table rows generated by project-defined commands no longer receive incorrect column-count warnings.</li>
+        </ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- File Type -->
+        <fileType
+            name="LaTeX"
+            implementationClass="com.github.joelmaykon94.latex.lang.LatexFileType"
+            fieldName="INSTANCE"
+            language="LaTeX"
+            extensions="tex;sty;cls;dtx;ins"/>
+
+        <!-- Syntax Highlighting -->
+        <lang.syntaxHighlighterFactory
+            language="LaTeX"
+            implementationClass="com.github.joelmaykon94.latex.highlighting.LatexSyntaxHighlighterFactory"/>
+
+        <!-- Split Editor (Source + PDF Preview) -->
+        <fileEditorProvider
+            implementation="com.github.joelmaykon94.latex.editor.LatexSplitEditorProvider"/>
+
+        <!-- Auto-Compile Service (Project-level) -->
+        <projectService
+            serviceImplementation="com.github.joelmaykon94.latex.compiler.LatexAutoCompileService"/>
+    </extensions>
+</idea-plugin>
